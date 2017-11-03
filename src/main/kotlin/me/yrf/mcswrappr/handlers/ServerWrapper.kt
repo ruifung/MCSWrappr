@@ -33,7 +33,7 @@ class ServerWrapper(val props: WrapperProperties, private val term: TerminalMana
         stopCmdIssued = false
         val jvmArgs = props.jvmArgs.joinToString(" ")
         val jarArgs = props.jarArgs.joinToString(" ")
-        val cmd = "cmd /c ${props.javaPath} -Xms${props.minMemory} -Xmx${props.maxMemory} $jvmArgs -jar ${props.jarPath} $jarArgs"
+        val cmd = "${props.javaPath} -Xms${props.minMemory} -Xmx${props.maxMemory} $jvmArgs -jar ${props.jarPath} $jarArgs"
 
         val dir = Paths.get(props.jarPath).toAbsolutePath().parent.toFile()
         val proc = ProcessBuilder()
