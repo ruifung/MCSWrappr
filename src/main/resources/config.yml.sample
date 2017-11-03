@@ -1,0 +1,12 @@
+mcswrappr:
+  jarPath: "minecraft_server.1.12.2.jar"
+  jvmArgs: []
+  jarArgs: ["nogui"]
+  minMemory: "409M"
+  maxMemory: "1024M"
+  #Path to java, may be omitted to use the same jvm as the wrapper.
+  javaPath: ""
+  remotePort: 25522
+  remoteUser: "admin"
+  #Empty password disables password login.
+  remotePass: ""
