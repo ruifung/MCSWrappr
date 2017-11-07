@@ -4,12 +4,12 @@ import com.google.common.collect.EvictingQueue
 import com.google.common.collect.Queues
 import me.yrf.mcswrappr.WrapperProperties
 import me.yrf.mcswrappr.commands.CommandDispatcher
-import me.yrf.mcswrappr.discardExceptions
 import org.jline.reader.LineReader
 import org.jline.reader.LineReaderBuilder
 import org.jline.reader.impl.history.DefaultHistory
 import org.jline.terminal.Terminal
 import org.jline.terminal.TerminalBuilder
+import org.slf4j.LoggerFactory
 import org.springframework.context.annotation.Scope
 import org.springframework.scheduling.annotation.Async
 import org.springframework.stereotype.Component
@@ -29,6 +29,7 @@ import kotlin.concurrent.thread
 @Component
 @Scope("singleton")
 class TerminalManager(props: WrapperProperties, private val commandDispatcher: CommandDispatcher) {
+    private final val logger = LoggerFactory.getLogger(javaClass)
     private final val systemTerminal: TermContainer = TermContainer(TerminalBuilder.terminal())
     private final val remoteTerminals: MutableList<TermContainer> = Collections.synchronizedList(ArrayList())
     private final val inputDestinations: MutableList<(String) -> Unit> = Collections.synchronizedList(ArrayList())
@@ -67,11 +68,14 @@ class TerminalManager(props: WrapperProperties, private val commandDispatcher: C
 
         val cont = TermContainer(term, termination)
         cont.inputConnector = InputConnector(cont, true)
-        cont.inputConnector?.start()
         remoteTerminals.add(cont)
+        cont.inputConnector?.start()
         thread(name = "Playback Queue Replay Thread") {
             val writer = term.writer()
+            cont.inputConnector?.callWidget(LineReader.CLEAR)
             playbackQueue.toTypedArray().forEach(writer::println) //Clone it to write.
+            cont.inputConnector?.callWidget(LineReader.REDRAW_LINE)
+            cont.inputConnector?.callWidget(LineReader.REDISPLAY)
             writer.flush()
         }
         return term
@@ -82,8 +86,16 @@ class TerminalManager(props: WrapperProperties, private val commandDispatcher: C
      */
     fun removeRemoteTerminal(term: Terminal) {
         if (term != systemTerminal.term) {
-            remoteTerminals.removeIf { it.term == term }
-            discardExceptions { term.close() }
+            val cont = remoteTerminals.find { it.term == term }
+            cont?.let {
+                remoteTerminals.remove(it)
+                it.inputConnector?.interrupt()
+            }
+            try {
+                term.close()
+            } catch (ex: Exception) {
+                logger.error("Error closing terminal", ex)
+            }
         } else
             throw IllegalArgumentException("Attempted to remove System Terminal")
     }
