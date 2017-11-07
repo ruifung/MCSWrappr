@@ -3,6 +3,7 @@ package me.yrf.mcswrappr.commands
 import me.yrf.mcswrappr.handlers.ServerWrapper
 import me.yrf.mcswrappr.terminal.TermContainer
 import me.yrf.mcswrappr.terminal.TerminalManager
+import org.jline.reader.LineReader
 import org.slf4j.LoggerFactory
 import org.springframework.boot.SpringApplication
 import org.springframework.context.ApplicationContext
@@ -10,7 +11,7 @@ import org.springframework.stereotype.Component
 import java.util.concurrent.ConcurrentHashMap
 import javax.annotation.PostConstruct
 
-typealias CommandHandler = (String, List<String>) -> Boolean
+typealias CommandHandler = (String, List<String>, TermContainer) -> Boolean
 @Component
 class CommandDispatcher {
     private val commandHandlers: MutableMap<String, CommandHandler> = ConcurrentHashMap()
@@ -22,7 +23,7 @@ class CommandDispatcher {
             val str = cmd.substring(1)
             val split = str.split(" ").filter { it.isNotEmpty() }
             if (commandHandlers.containsKey(split[0]))
-                return commandHandlers[split[0]]?.invoke(split[0], split.drop(1)) ?: false
+                return commandHandlers[split[0]]?.invoke(split[0], split.drop(1), term) ?: false
         }
 
         return false
@@ -31,6 +32,7 @@ class CommandDispatcher {
     fun registerCommand(cmd: String, handler: CommandHandler) {
         commandHandlers.put(cmd, handler)
     }
+
 }
 
 @Component
@@ -42,25 +44,30 @@ class CoreCommands(private val cmd: CommandDispatcher,
 
     @PostConstruct
     fun registerCommands() {
-        cmd.registerCommand("start", { _,_ ->
+        cmd.registerCommand("start", { _, _, _ ->
             wrapper.startServer()
             true
         })
 
-        cmd.registerCommand("stop", { _,_ ->
+        cmd.registerCommand("stop", { _, _, _ ->
             wrapper.stopServer()
             true
         })
 
-        cmd.registerCommand("killServer", { _,_ ->
+        cmd.registerCommand("killServer", { _, _, _ ->
             wrapper.killServer()
             true
         })
 
-        cmd.registerCommand("stopWrapper", {_,_ ->
+        cmd.registerCommand("stopWrapper", { _, _, _ ->
             logger.info("[SWRAPPER] Stopping wrapper. Terminating Server.")
             wrapper.stopServer()
             SpringApplication.exit(ctx)
+            true
+        })
+
+        cmd.registerCommand("clear", { _, _, t ->
+            t.inputConnector?.callWidget(LineReader.CLEAR_SCREEN)
             true
         })
     }

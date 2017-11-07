@@ -7,20 +7,23 @@ import java.util.function.Consumer
 
 class LineBufferConverter(cs: Charset, private val output: Consumer<String>) {
     private val dec = cs.newDecoder()
-    private val cbuf = CharBuffer.allocate(1024)
+    private val cbuf = ByteBuffer.allocateDirect(2048).asCharBuffer()
     private val line = StringBuilder()
 
     fun accept(bytes: ByteBuffer, endInput: Boolean) {
-        while (true) {
+        while (bytes.remaining() > 0) {
             cbuf.clear()
             val result = dec.decode(bytes, cbuf, endInput)
             cbuf.flip()
             accept(cbuf)
 
-            if (result.isOverflow)
-                continue
-            else
-                break
+            if (endInput && line.isNotEmpty())
+                output.accept(line.toString())
+
+            //Skip unreadable bytes.
+            if (result.isError && bytes.hasRemaining())
+                bytes.position(bytes.position() + Math.min(bytes.remaining(), result.length()))
+
         }
     }
 

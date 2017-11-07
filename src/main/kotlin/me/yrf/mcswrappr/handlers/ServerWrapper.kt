@@ -91,12 +91,17 @@ class ServerWrapper(val props: WrapperProperties, private val term: TerminalMana
             cmd + '\n'
         else
             cmd
-        curProc?.write(Charset.defaultCharset().encode(str))
+        write(str)
     }
 
     @PostConstruct
     fun init() {
-        term.addInputHandler(this::runCommand)
+        val stopRegex = Regex("^[/]?stop[\\s]*$")
+        term.addInputHandler {
+            if (it.matches(stopRegex) && isAlive())
+                serverRunning = false
+            runCommand(it)
+        }
     }
 
     @EventListener
