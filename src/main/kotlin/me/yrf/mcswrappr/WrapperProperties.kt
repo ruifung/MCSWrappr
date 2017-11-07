@@ -17,7 +17,7 @@ class WrapperProperties {
             .resolve("java.exe")
             .toString()
         set(value) {if (value.isNotEmpty()) field = value}
-    var consoleLineBuffer: Int = 10000
+    var consoleLineBuffer: Int = 1000
     var remoteUser: String = "admin"
     var remotePass: String = "password"
     var remotePort: Int = 25522

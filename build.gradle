@@ -19,7 +19,7 @@ apply plugin: 'eclipse'
 apply plugin: 'org.springframework.boot'
 
 group = 'me.yrf'
-version = '0.0.1-SNAPSHOT'
+version = '0.2.0-SNAPSHOT'
 sourceCompatibility = 1.8
 compileKotlin {
 	kotlinOptions.jvmTarget = "1.8"
@@ -36,7 +36,7 @@ repositories {
 dependencies {
 	compile('org.springframework.boot:spring-boot-starter')
 	compile("org.jetbrains.kotlin:kotlin-stdlib-jre8:${kotlinVersion}")
-	compile("org.jetbrains.kotlin:kotlin-reflect:${kotlinVersion}")
+//	compile("org.jetbrains.kotlin:kotlin-reflect:${kotlinVersion}")
 
 	// https://mvnrepository.com/artifact/com.google.guava/guava
 	compile group: 'com.google.guava', name: 'guava', version: '23.3-jre'
@@ -44,6 +44,8 @@ dependencies {
     compile group: 'org.apache.sshd', name: 'sshd-core', version: '1.6.0'
 
 	compile("org.jline:jline:3.5.1")
+	compile('com.zaxxer:nuprocess:1.1.2')
+	compile group: 'org.fusesource.jansi', name: 'jansi', version: '1.16'
 
     compileOnly('org.springframework.boot:spring-boot-configuration-processor')
 	testCompile('org.springframework.boot:spring-boot-starter-test')

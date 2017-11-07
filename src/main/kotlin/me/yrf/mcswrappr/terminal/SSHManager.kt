@@ -3,7 +3,6 @@ package me.yrf.mcswrappr.terminal
 import me.yrf.mcswrappr.Constants
 import me.yrf.mcswrappr.WrapperProperties
 import org.apache.sshd.common.Factory
-import org.apache.sshd.common.keyprovider.KeyPairProvider
 import org.apache.sshd.server.Command
 import org.apache.sshd.server.Environment
 import org.apache.sshd.server.ExitCallback
@@ -31,6 +30,7 @@ class SSHManager(private val termManager: TerminalManager, private val props: Wr
         val hostKey = Paths.get(Constants.configDir).resolve("ssh_host.key").toAbsolutePath()
         val authKeys = Paths.get(Constants.configDir).resolve(Constants.sshKeys).toAbsolutePath()
 
+        sshd.properties.put(SshServer.IDLE_TIMEOUT, 30 * 60 * 1000)
         sshd.port = props.remotePort
         sshd.keyPairProvider = SimpleGeneratorHostKeyProvider(hostKey.toFile())
         sshd.shellFactory = Factory { RemoteTerminal() }

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <appender name="TERM" class="me.yrf.mcswrappr.handlers.TerminalAppender">
+        <pattern>%d{dd-MM-yyyy HH:mm:ss.SSS} %boldGreen([%thread]) %highlight(%-5level) %logger{10}.%M - %msg%n
+        </pattern>
+    </appender>
+    <root level="info">
+        <appender-ref ref="TERM"/>
+    </root>
+</configuration>

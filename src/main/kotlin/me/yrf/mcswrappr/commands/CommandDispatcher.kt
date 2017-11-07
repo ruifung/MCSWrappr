@@ -1,9 +1,9 @@
 package me.yrf.mcswrappr.commands
 
-import jdk.nashorn.internal.ir.Terminal
 import me.yrf.mcswrappr.handlers.ServerWrapper
 import me.yrf.mcswrappr.terminal.TermContainer
 import me.yrf.mcswrappr.terminal.TerminalManager
+import org.slf4j.LoggerFactory
 import org.springframework.boot.SpringApplication
 import org.springframework.context.ApplicationContext
 import org.springframework.stereotype.Component
@@ -38,6 +38,7 @@ class CoreCommands(private val cmd: CommandDispatcher,
                    private val wrapper: ServerWrapper,
                    private val ctx: ApplicationContext,
                    private val term: TerminalManager) {
+    val logger = LoggerFactory.getLogger(javaClass)
 
     @PostConstruct
     fun registerCommands() {
@@ -57,7 +58,7 @@ class CoreCommands(private val cmd: CommandDispatcher,
         })
 
         cmd.registerCommand("stopWrapper", {_,_ ->
-            term.println("[MCSWRAPPER] Stopping wrapper. Terminating Server.")
+            logger.info("[SWRAPPER] Stopping wrapper. Terminating Server.")
             wrapper.stopServer()
             SpringApplication.exit(ctx)
             true

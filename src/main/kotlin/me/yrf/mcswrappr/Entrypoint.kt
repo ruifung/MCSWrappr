@@ -1,17 +1,19 @@
 package me.yrf.mcswrappr
 
+import org.fusesource.jansi.AnsiConsole
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.builder.SpringApplicationBuilder
 import org.springframework.context.annotation.Bean
+import org.springframework.scheduling.TaskScheduler
+import org.springframework.scheduling.annotation.EnableAsync
 import org.springframework.scheduling.annotation.EnableScheduling
+import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler
 import java.nio.file.Files
 import java.nio.file.Paths
 import java.util.*
-import java.util.concurrent.Executors
-import java.util.concurrent.ScheduledExecutorService
-import javax.annotation.PreDestroy
 
 fun main(args: Array<String>) {
+    AnsiConsole.systemInstall()
     val path = Paths.get(Constants.configDir)
     Files.createDirectories(path)
 
@@ -42,10 +44,11 @@ object Constants {
 
 @SpringBootApplication
 @EnableScheduling
+@EnableAsync
 class Application {
     @Bean
-    fun scheduledThreadPool(): ScheduledExecutorService {
-        return Executors.newScheduledThreadPool(2)
+    fun scheduledThreadPool(): TaskScheduler {
+        return ThreadPoolTaskScheduler()
     }
 }
 
